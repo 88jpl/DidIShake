@@ -1,0 +1,35 @@
+#wrapper {
+    display: grid;
+    grid-template-columns: 15% 70% 15%;
+    height: 100%;
+}
+body {
+    background-image: url(pq4103.gif);
+}
+#main_content {
+    background-color: whitesmoke;
+    height: 100vh;
+    border: 2.5px solid brown;
+    border-radius: 25px;
+    display: grid;
+    grid-template-rows: 1fr .5fr 10fr ;
+}
+#title-row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center;
+}
+#results {
+    background-image: url(https://quaker.sfo3.cdn.digitaloceanspaces.com/quaker/will-it-work/hero.png);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    border-radius: 0px 0px 22px 22px;
+}
+#get-notified-btn {
+    height: 50%;
+}
+#search-row {
+    display: grid;
+    grid-template-columns: .5fr 6fr .5fr 1fr .25fr .5fr .5fr;
+}
