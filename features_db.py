@@ -17,16 +17,16 @@ class FeaturesDB:
             self.cursor = self.connection.cursor()
 
         def createNewFeature(self, id, mag, place, time, updated, tz, url, detail, felt, cdi, mmi, alert, status, tsunami, sig, net, code, ids, sources, types, nst, dmin, rms, gap, magType, type, lat, long, depth):
-             data = [id, mag, place, time, updated, tz, url, detail, felt, cdi, mmi, alert, status, tsunami, sig,
-                      net, code, ids, sources, types, nst, dmin, rms, gap, magType, type, lat, long, depth]
-             self.cursor.execute("INSERT INTO features (featureID, mag, place, time, updated, tz, url, detail, felt, cdi, mmi, alert, status, tsunami, sig, net, code, ids, sources, types, nst, dmin, rms, gap, magType, type, lat, long, depth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
-             self.connection.commit()
+            data = [id, mag, place, time, updated, tz, url, detail, felt, cdi, mmi, alert, status, tsunami, sig,
+                    net, code, ids, sources, types, nst, dmin, rms, gap, magType, type, lat, long, depth]
+            self.cursor.execute("INSERT INTO features (featureID, mag, place, time, updated, tz, url, detail, felt, cdi, mmi, alert, status, tsunami, sig, net, code, ids, sources, types, nst, dmin, rms, gap, magType, type, lat, long, depth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
+            self.connection.commit()
         
         def getFeature(self, id):
-             data = [id]
-             self.cursor.execute("SELECT * FROM features WHERE featureID = ?", data)
-             record = self.cursor.fetchone()
-             return record
+            data = [id]
+            self.cursor.execute("SELECT * FROM features WHERE featureID = ?", data)
+            record = self.cursor.fetchone()
+            return record
         
         def getFeatures(self):
             self.cursor.execute("SELECT * FROM features")
@@ -35,9 +35,24 @@ class FeaturesDB:
         
         # pull features from current time back to parameter=seconds
         def getFeaturesFromLast(self, diff):
-             epoch = time.time()
-             data = int(epoch) - diff
-             data *= 1000
-             self.cursor.execute("SELECT * FROM features WHERE time > ?", [data])
-             records = self.cursor.fetchall()
-             return records
+            epoch = time.time()
+            data = int(epoch) - diff
+            data *= 1000
+            self.cursor.execute("SELECT * FROM features WHERE time > ?", [data])
+            records = self.cursor.fetchall()
+            return records
+        
+        def getFeaturesFromTo(self, start, stop):
+            epoch = time.time()
+            validatedStart = int(epoch) - int(start)
+            validatedStop = int(epoch) - int(stop)
+            validatedStart *= 1000
+            validatedStop *= 1000
+            if validatedStart < validatedStop:
+                data = (validatedStart, validatedStop,)
+            else:
+                data = (validatedStop, validatedStart,)
+            #  print(data)
+            self.cursor.execute("SELECT * FROM features WHERE time BETWEEN ? and ?", data)
+            records = self.cursor.fetchall()
+            return records

@@ -220,6 +220,8 @@ def runRanking():
         counter += 1
         time.sleep(RANKINGINTERVAL)
         
+# def getNearestFeatureToAddress():
+
 
 class MyRequestHandler(BaseHTTPRequestHandler):
 
@@ -240,6 +242,14 @@ class MyRequestHandler(BaseHTTPRequestHandler):
     def handleGetFeaturesPresentToDeclared(self, historyTime):
         db = FeaturesDB()
         records = db.getFeaturesFromLast(historyTime)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(bytes(json.dumps(records), "utf-8"))
+
+    def handleGetFeaturesFromTo(self, start, stop):
+        db = FeaturesDB()
+        records = db.getFeaturesFromTo(start, stop)
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
@@ -271,7 +281,6 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 self.handleGetFeatures()
             else:
                 db = FeaturesDB()
-                # print(feature_id)
                 record = db.getFeature(feature_id)
                 if record != None:
                     self.handleGetFeatureMember(record)
@@ -279,7 +288,15 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                     if historyTime.isdigit():
                         self.handleGetFeaturesPresentToDeclared(int(historyTime))
                     else:
-                        self.handelNotFound("Path not found!")
+                        if ',' in historyTime:
+                            listOfHistoryTime = historyTime.split(',')
+                            print(listOfHistoryTime)
+                            if len(listOfHistoryTime) == 2 and listOfHistoryTime[0].isdigit() and listOfHistoryTime[1].isdigit():
+                                self.handleGetFeaturesFromTo(listOfHistoryTime[0], listOfHistoryTime[1])
+                            else:
+                                self.handelNotFound("Invalid Time formatting!")
+                        else:
+                            self.handelNotFound("Path not found!")
         # elif collection_name == 'users':
         #     if user_email:
         #         self.handleGetUser(user_email)
