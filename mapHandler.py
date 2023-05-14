@@ -11,7 +11,8 @@ GEOURL = "https://api.geodatasource.com/v2/city"
 
 # GOOGLE assign env to global variable
 GOOGLEAPIKEY = os.environ.get("google-api-token")
-GOOGLEURL = "https://maps.googleapis.com/maps/api/staticmap"
+GOOGLEURLSTATICMAP = "https://maps.googleapis.com/maps/api/staticmap"
+GOOGLEURLGEOCODED = "https://maps.googleapis.com/maps/api/geocode/json"
 SIZE = "640x640"
 SCALE = "2"
 MAPTYPE = "satellite"
@@ -44,8 +45,21 @@ class GetGoogleMap:
         # Get neighbor city to feature that occured then assemble payload to nearCityMarker for map request
         n = GetNearbyCity()
         n = n.getNeighborCity(feature)
-        print("Neighbor City information:", n)
+        # print("Neighbor City information:", n)
         nearCityMarker = str(n['latitude']) + ',' + str(n['longitude'])
-        x = requests.get(GOOGLEURL, params=f'center={centerPayload}&key={GOOGLEAPIKEY}&size={SIZE}&scale={SCALE}&maptype={MAPTYPE}&markers=color:red%7Clabel:C%7C{nearCityMarker}&markers=color:blue%7C{centerPayload}&path=color:0x0000ff|weight:5|{centerPayload}|{nearCityMarker}', stream=True ).raw
+        x = requests.get(GOOGLEURLSTATICMAP, params=f'center={centerPayload}&key={GOOGLEAPIKEY}&size={SIZE}&scale={SCALE}&maptype={MAPTYPE}&markers=color:red%7Clabel:C%7C{nearCityMarker}&markers=color:blue%7C{centerPayload}&path=color:0x0000ff|weight:5|{centerPayload}|{nearCityMarker}', stream=True ).raw
         return x
+    
+class GeoCoding:
      
+     def addressToLatLong(self, address):
+        x = requests.get(GOOGLEURLGEOCODED, params=f'address={address}&key={GOOGLEAPIKEY}')
+        if x.status_code == 200:
+            if len(x.json()['results']) == 0:
+                return [1,1]
+            else:
+                lat = x.json()['results'][0]['geometry']['location']['lat']
+                long = x.json()['results'][0]['geometry']['location']['lng']
+                return [lat,long]
+        else:
+            return [5,5]

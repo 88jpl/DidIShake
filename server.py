@@ -10,6 +10,7 @@ from socketserver import ThreadingMixIn
 from distance import distance
 from features_db import FeaturesDB
 from mapHandler import GetGoogleMap
+from mapHandler import GeoCoding
 from uploadBucket import UploadImage
 # import env for global key variables
 import os
@@ -17,7 +18,7 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
 SEND_SMS  = True
-INTERVAL = 60
+INTERVAL = 120
 CUTOFF = 7.0
 RANKINGINTERVAL = 7200
 DAILYTOP = None
@@ -30,7 +31,7 @@ def requestUSGSData():
         headers = {'Accept': 'application/json'}
         try: 
             r = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson')
-            #r = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson')
+            # r = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson')
         except requests.exceptions.ConnectionError:
             r.status_code = "Connection Refused"
         return r
@@ -220,10 +221,57 @@ def runRanking():
         counter += 1
         time.sleep(RANKINGINTERVAL)
         
-# def getNearestFeatureToAddress():
-
+def getNearestFeatureToAddress(address):
+    #convert address received to lat long
+    x = GeoCoding()
+    latlong = x.addressToLatLong(address)
+    print(latlong)
+    # lat = 37.072847
+    # long = -113.589580    
+    lat = latlong[0]
+    long = latlong[1]
+    totalDepth = 36         #amount of chunks to looks through
+    rangePerChunk = 7200    # in seconds
+    listOfFeatures = []
+    start = 1
+    stop = rangePerChunk
+    db = FeaturesDB()
+    checked = 0
+    for i in range(1, totalDepth+1):
+        listOfFeatures = db.getFeaturesFromTo(start, stop * i)
+        start += stop
+        for feature in listOfFeatures:
+            checked += 1
+            if feature['mag'] >= 7.0:
+                if distance(feature['lat'], feature['long'], lat, long) <= 750.0:
+                    feature['uri'] = "test.png"
+                    feature['checked'] = checked
+                    return feature
+            elif feature['mag'] >= 5.5:
+                if distance(feature['lat'], feature['long'], lat, long) <= 450.0:
+                    feature['uri'] = "test.png"
+                    feature['checked'] = checked
+                    return feature
+            elif feature['mag'] >= 2.5:
+                if distance(feature['lat'], feature['long'], lat, long) <= 75.0:
+                    feature['uri'] = "test.png"
+                    feature['checked'] = checked
+                    return feature
+            elif feature['mag'] >= 0.1:
+                if distance(feature['lat'], feature['long'], lat, long) <= 15.0:
+                    feature['uri'] = "test.png"
+                    feature['checked'] = checked
+                    return feature
+    # response = "No Features Nearby! Checked: " + str(checked)
+    response = {'lat': 0, 'long': 0, 'checked': checked, 'uri': "test2.png"}
+    return response
 
 class MyRequestHandler(BaseHTTPRequestHandler):
+
+    def end_headers(self):
+        self.send_header("Access-Control-Allow-Origin", self.headers["Origin"])
+        self.send_header("Access-Control-Allow-Credentials", "true")
+        super().end_headers()
 
     def handleGetFeatures(self):
         db = FeaturesDB()
@@ -267,14 +315,27 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(message, "utf-8"))
 
+    def handleGetNearest(self, address):
+        feature = getNearestFeatureToAddress(address)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(bytes(json.dumps(feature), "utf-8"))
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
     def do_GET(self):
         path_parts = self.path.split('/')
         if len(path_parts) == 3:
             collection_name = path_parts[1]
-            historyTime = feature_id = path_parts[2]
+            address = historyTime = feature_id = path_parts[2]
         else: 
             collection_name = path_parts[1]
-            user_email = feature_id = None
+            user_email = address = feature_id = None
 
         if collection_name == 'features':
             if feature_id == None:
@@ -297,13 +358,19 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                                 self.handelNotFound("Invalid Time formatting!")
                         else:
                             self.handelNotFound("Path not found!")
+        elif collection_name == 'locations':
+            if address == None or address == "":
+                self.handelNotFound("Cant be empty!")
+            else:
+                self.handleGetNearest(address)
+
         # elif collection_name == 'users':
         #     if user_email:
         #         self.handleGetUser(user_email)
         #     else:
         #         self.handle422
         else:
-            self.handelNotFound("Path not found!Out")
+            self.handelNotFound("Path not found!")
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     pass
@@ -316,7 +383,6 @@ def run():
     thread_1.start()
     thread_2 = threading.Thread(target=runRanking, daemon=True)
     thread_2.start()
-    # updateGlobalFromFile()
     server.serve_forever()
 
 if __name__ == '__main__':
