@@ -50,6 +50,17 @@ class GetGoogleMap:
         x = requests.get(GOOGLEURLSTATICMAP, params=f'center={centerPayload}&key={GOOGLEAPIKEY}&size={SIZE}&scale={SCALE}&maptype={MAPTYPE}&markers=color:red%7Clabel:C%7C{nearCityMarker}&markers=color:blue%7C{centerPayload}&path=color:0x0000ff|weight:5|{centerPayload}|{nearCityMarker}', stream=True ).raw
         return x
     
+    def locationToFeatureMap(self, latlong, feature):
+        localLat = latlong[0]
+        localLong = latlong[1]
+        centerPayload = str(localLat) + ',' + str(localLong)
+        # Pull lat and long from feature then create payload string for static google map pull
+        featureLat = feature['lat']
+        featureLong = feature['long']
+        featureMarker = str(featureLat) + ',' + str(featureLong)
+        x = requests.get(GOOGLEURLSTATICMAP, params=f'center={centerPayload}&key={GOOGLEAPIKEY}&size={SIZE}&scale={SCALE}&maptype={MAPTYPE}&markers=color:red%7Clabel:C%7C{featureMarker}&markers=color:blue%7C{centerPayload}&path=color:0x0000ff|weight:5|{centerPayload}|{featureMarker}', stream=True ).raw
+        return x
+    
 class GeoCoding:
      
      def addressToLatLong(self, address):

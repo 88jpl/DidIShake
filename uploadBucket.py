@@ -26,7 +26,6 @@ class UploadImage:
                                 aws_access_key_id=ACCESS_KEY,
                                 aws_secret_access_key=SECERET_ACCESS_KEY)
         transfer = S3Transfer(client)
-        # switch to dynamic file naming not static
         transfer.upload_file(fileName, SPACE, filePath+"/"+fileName)
         response = client.put_object_acl(ACL='public-read', Bucket=SPACE, Key="%s/%s" % (filePath, fileName))
         return response

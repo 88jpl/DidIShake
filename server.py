@@ -27,6 +27,9 @@ MONTLYRUNNING = []
 # SMS to be moved to own class then remove this
 TEXTAPIKEY = os.environ.get("text-api-token")
 
+ENDPOINT_URL = os.environ.get("do-spaces-endpoint-url")
+SPACE =  os.environ.get("do-spaces-space")
+
 def requestUSGSData():
         headers = {'Accept': 'application/json'}
         try: 
@@ -202,6 +205,17 @@ def rankingRefresh():
     imageObj.uploadSingleToSpace(path, heroImage)
     # return top as object
     return currentTop
+
+def saveImageFromAddressSearch(path, fileName, latlong, feature):
+    m = GetGoogleMap()
+    m = m.locationToFeatureMap(latlong, feature)
+    with open(fileName, 'wb') as f:
+        m.decode_content = True
+        shutil.copyfileobj(m, f)
+    # Upload local image
+    imageObj = UploadImage()
+    imageObj.uploadSingleToSpace(path, fileName)
+
  
 def runRanking():
     open("DAILYTOP.txt", 'w').close()
@@ -239,6 +253,7 @@ def getNearestFeatureToAddress(address):
     stop = rangePerChunk
     db = FeaturesDB()
     checked = 0
+    path = "public"
     for i in range(1, totalDepth+1):
         listOfFeatures = db.getFeaturesFromTo(start, stop * i)
         start += stop
@@ -246,23 +261,43 @@ def getNearestFeatureToAddress(address):
             checked += 1
             if feature['mag'] >= 7.0:
                 if distance(feature['lat'], feature['long'], lat, long) <= 750.0:
-                    feature['uri'] = "test.png"
+                    tempFileName = int(time.time())
+                    tempFileName = str(tempFileName) + ".png"
+                    uri = ENDPOINT_URL + "/" + SPACE + "/" + path + "/" + tempFileName
+                    saveImageFromAddressSearch(path, tempFileName, latlong, feature)
+                    feature['uri'] = uri
                     feature['checked'] = checked
+                    feature['distance'] = distance(feature['lat'], feature['long'], lat, long)
                     return feature
             elif feature['mag'] >= 5.5:
                 if distance(feature['lat'], feature['long'], lat, long) <= 450.0:
-                    feature['uri'] = "test.png"
+                    tempFileName = int(time.time())
+                    tempFileName = str(tempFileName) + ".png"
+                    uri = ENDPOINT_URL + "/" + SPACE + "/" + path + "/" + tempFileName
+                    saveImageFromAddressSearch(path, tempFileName, latlong, feature)
+                    feature['uri'] = uri
                     feature['checked'] = checked
+                    feature['distance'] = distance(feature['lat'], feature['long'], lat, long)
                     return feature
             elif feature['mag'] >= 2.5:
                 if distance(feature['lat'], feature['long'], lat, long) <= 75.0:
-                    feature['uri'] = "test.png"
+                    tempFileName = int(time.time())
+                    tempFileName = str(tempFileName) + ".png"
+                    uri = ENDPOINT_URL + "/" + SPACE + "/" + path + "/" + tempFileName
+                    saveImageFromAddressSearch(path, tempFileName, latlong, feature)
+                    feature['uri'] = uri
                     feature['checked'] = checked
+                    feature['distance'] = distance(feature['lat'], feature['long'], lat, long)
                     return feature
             elif feature['mag'] >= 0.1:
                 if distance(feature['lat'], feature['long'], lat, long) <= 15.0:
-                    feature['uri'] = "test.png"
+                    tempFileName = int(time.time())
+                    tempFileName = str(tempFileName) + ".png"
+                    uri = ENDPOINT_URL + "/" + SPACE + "/" + path + "/" + tempFileName
+                    saveImageFromAddressSearch(path, tempFileName, latlong, feature)
+                    feature['uri'] = uri
                     feature['checked'] = checked
+                    feature['distance'] = distance(feature['lat'], feature['long'], lat, long)
                     return feature
     # response = "No Features Nearby! Checked: " + str(checked)
     response = {'lat': 0, 'long': 0, 'checked': checked, 'uri': "test2.png"}
@@ -271,8 +306,8 @@ def getNearestFeatureToAddress(address):
 class MyRequestHandler(BaseHTTPRequestHandler):
 
     def end_headers(self):
-        self.send_header("Access-Control-Allow-Origin", self.headers["Origin"])
-        self.send_header("Access-Control-Allow-Credentials", "true")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        # self.send_header("Access-Control-Allow-Credentials", "true")
         super().end_headers()
 
     def handleGetFeatures(self):
