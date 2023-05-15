@@ -4,7 +4,7 @@ addressSearchButton.onclick = function () {
     var address = encodeURIComponent(addressSearchInput.value);
     fetch(`http://jpl.hopto.me:53011/locations/${address}`, {
         method: "GET",
-        // credentials: "include",
+        credentials: "include",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded; utf-8"
         }

@@ -306,8 +306,8 @@ def getNearestFeatureToAddress(address):
 class MyRequestHandler(BaseHTTPRequestHandler):
 
     def end_headers(self):
-        self.send_header("Access-Control-Allow-Origin", "*")
-        # self.send_header("Access-Control-Allow-Credentials", "true")
+        self.send_header("Access-Control-Allow-Origin", self.headers["Origin"])
+        self.send_header("Access-Control-Allow-Credentials", "true")
         super().end_headers()
 
     def handleGetFeatures(self):
