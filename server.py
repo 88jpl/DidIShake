@@ -196,7 +196,7 @@ def rankingRefresh():
     m = m.featureOnlyMapFromGoogle(currentTop)
     # read map.png from googleStaticMap API into local file
     path = 'public'
-    heroImage = 'hero5.png'
+    heroImage = 'hero.png'
     with open(heroImage, 'wb') as f:
         m.decode_content = True
         shutil.copyfileobj(m, f)
