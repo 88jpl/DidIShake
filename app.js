@@ -21,3 +21,22 @@ addressSearchButton.onclick = function () {
         }
     })
 }
+function loadLeadingFeatureStats() {
+    fetch(`http://localhost:8080/rankings/daily`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; utf-8"
+        }
+    }).then(function (response) {
+        if (response.status == 200) {
+            console.log(response.status);
+            response.json().then(function (data) {
+                console.log(data);
+            })
+        } else {
+            console.log("Error Loading Daily Top Stats From Server!");
+        }
+    })
+}
+loadLeadingFeatureStats();

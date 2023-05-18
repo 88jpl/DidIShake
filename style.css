@@ -1,7 +1,7 @@
 #wrapper {
     display: grid;
-    grid-template-columns: 15% 70% 15%;
-    height: 100%;
+    grid-template-columns: 10% 80% 10%;
+    height: 150%;
 }
 body {
     background-image: url(pq4103.gif);
@@ -12,7 +12,7 @@ body {
     border: 2.5px solid brown;
     border-radius: 25px;
     display: grid;
-    grid-template-rows: 1fr .5fr 2fr 10fr ;
+    grid-template-rows: 1fr .5fr 2fr auto ;
 }
 #title-row {
     display: flex;
@@ -25,6 +25,7 @@ body {
     background-repeat: no-repeat;
     background-size: 100% 100%;
     border-radius: 0px 0px 22px 22px;
+    aspect-ratio: 1 / 1;
 }
 #get-notified-btn {
     height: 50%;

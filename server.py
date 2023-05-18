@@ -158,6 +158,14 @@ def saveOneJSONObjectToFile(obj, filename):
     with open(filename, 'w') as outp: 
        outp.write(json_object + "\n")
 
+def openOneJSONObjectFromFile(filename):
+    with open(filename, 'r') as outp:
+        data = outp.read()
+        jsondata = json.loads(data)
+    return jsondata
+
+# print(openOneJSONObjectFromFile("DAILYTOP.txt"))
+
 def save_printToLog(line, filename):
     with open(filename, 'a') as outp: 
        outp.write(line + "\n")
@@ -340,6 +348,14 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(json.dumps(records), "utf-8"))
 
+    def handleGetDailyRanking(self):
+        record = openOneJSONObjectFromFile("DAILYTOP.txt")
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(bytes(json.dumps(record), "utf-8"))
+
     def handelNotAuthorized(self, message):
         self.send_response(401)
         self.send_header("Content-Type", "application/json")
@@ -400,6 +416,14 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 self.handelNotFound("Cant be empty!")
             else:
                 self.handleGetNearest(address)
+        elif collection_name == 'rankings':
+            if address == None or address =="":
+                self.handelNotFound("Cant be empty!")
+            elif address == 'daily':
+                self.handleGetDailyRanking()
+            else:
+                self.handelNotFound("Not a Valid Path")
+
 
         # elif collection_name == 'users':
         #     if user_email:
@@ -407,7 +431,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         #     else:
         #         self.handle422
         else:
-            self.handelNotFound("Path not found!")
+            self.handelNotFound("Path not found!!!!")
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     pass
@@ -416,10 +440,10 @@ def run():
     listen =  ("0.0.0.0", 8080)
     server = ThreadedHTTPServer(listen, MyRequestHandler)
     print("USGS Collection server running!")
-    thread_1 = threading.Thread(target=getUSGSDataAlways, daemon=True)
-    thread_1.start()
-    thread_2 = threading.Thread(target=runRanking, daemon=True)
-    thread_2.start()
+    # thread_1 = threading.Thread(target=getUSGSDataAlways, daemon=True)
+    # thread_1.start()
+    # thread_2 = threading.Thread(target=runRanking, daemon=True)
+    # thread_2.start()
     server.serve_forever()
 
 if __name__ == '__main__':
