@@ -58,7 +58,7 @@ class GetGoogleMap:
         featureLat = feature['lat']
         featureLong = feature['long']
         featureMarker = str(featureLat) + ',' + str(featureLong)
-        x = requests.get(GOOGLEURLSTATICMAP, params=f'center={centerPayload}&key={GOOGLEAPIKEY}&size={SIZE}&scale={SCALE}&maptype={MAPTYPE}&markers=color:red%7Clabel:C%7C{featureMarker}&markers=color:blue%7C{centerPayload}&path=color:0x0000ff|weight:5|{centerPayload}|{featureMarker}', stream=True ).raw
+        x = requests.get(GOOGLEURLSTATICMAP, params=f'center={centerPayload}&key={GOOGLEAPIKEY}&size={SIZE}&scale={SCALE}&maptype={MAPTYPE}&markers=anchor:center%7Cicon:https%3A%2F%2Fquaker.sfo3.cdn.digitaloceanspaces.com%2Fquaker%2Fpublic%2Ficon_target1.png%7C{featureMarker}&markers=anchor:center%7Chttps%3A%2F%2Fquaker.sfo3.cdn.digitaloceanspaces.com%2Fquaker%2Fpublic%2Fhome1.png%7C{centerPayload}', stream=True ).raw       #&path=color:0x0000ff|weight:5|{centerPayload}|{featureMarker}
         return x
     
 class GeoCoding:

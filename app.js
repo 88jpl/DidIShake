@@ -25,6 +25,11 @@ addressSearchButton.onclick = function () {
                 console.log(data);
                 var heroImage = document.querySelector("#results");
                 heroImage.style.backgroundImage=`url(${data['uri']})`
+                var nearbyCity = document.querySelector("#stat-nearby-city-data");
+                var magnitude = document.querySelector("#stat-magnitude-data");
+                var timeOccured = document.querySelector("#stat-time-occured-data");
+                var leaderTime = document.querySelector("#stat-time-as-leader-data");
+                nearbyCity.innerHTML = magnitude.innerHTML = timeOccured.innerHTML = leaderTime.innerHTML = "";
             })
         } else {
             console.log("No Data Received");
@@ -32,7 +37,7 @@ addressSearchButton.onclick = function () {
     })
 }
 function loadLeadingFeatureStats() {
-    fetch(`http://localhost:8080/rankings/daily`, {
+    fetch(`http://jpl.hopto.me:53011/rankings/daily`, {
         method: "GET",
         credentials: "include",
         headers: {
