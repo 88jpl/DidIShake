@@ -440,10 +440,10 @@ def run():
     listen =  ("0.0.0.0", 8080)
     server = ThreadedHTTPServer(listen, MyRequestHandler)
     print("USGS Collection server running!")
-    # thread_1 = threading.Thread(target=getUSGSDataAlways, daemon=True)
-    # thread_1.start()
-    # thread_2 = threading.Thread(target=runRanking, daemon=True)
-    # thread_2.start()
+    thread_1 = threading.Thread(target=getUSGSDataAlways, daemon=True)
+    thread_1.start()
+    thread_2 = threading.Thread(target=runRanking, daemon=True)
+    thread_2.start()
     server.serve_forever()
 
 if __name__ == '__main__':

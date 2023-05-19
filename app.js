@@ -1,3 +1,13 @@
+function msToTime(s) {
+    var ms = s % 1000;
+    s = (s- ms) / 1000;
+    var secs = s % 60;
+    s = (s - secs) / 60;
+    var mins = s % 60;
+    var hrs = (s - mins) / 60;
+
+    return hrs + ':' + mins + ':' + secs + '.' + ms;
+}
 var addressSearchButton = document.querySelector("#search-location-btn");
 addressSearchButton.onclick = function () {
     var addressSearchInput = document.querySelector("#search-input");
@@ -33,6 +43,19 @@ function loadLeadingFeatureStats() {
             console.log(response.status);
             response.json().then(function (data) {
                 console.log(data);
+                var nearbyCity = document.querySelector("#stat-nearby-city-data");
+                var magnitude = document.querySelector("#stat-magnitude-data");
+                var timeOccured = document.querySelector("#stat-time-occured-data");
+                var leaderTime = document.querySelector("#stat-time-as-leader-data");
+                nearbyCity.innerHTML = data['place'];
+                magnitude.innerHTML = data['mag'];
+                timeOccured.innerHTML = new Date(data['time']);
+                console.log("Time:", Math.floor((new Date()).getTime())
+                , "Event Time:", data['time'], "=", Math.floor((new Date()).getTime())-data['time']);
+                timeAsLeader = Date.now() - data['time'];
+                
+
+                leaderTime.innerHTML = msToTime(timeAsLeader);
             })
         } else {
             console.log("Error Loading Daily Top Stats From Server!");

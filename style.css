@@ -37,4 +37,11 @@ body {
 #feature-stats-display {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+.feature-data-div {
+    text-align: center;
+}
+.data-header {
+    font-size: larger;
 }
