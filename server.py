@@ -30,6 +30,10 @@ TEXTAPIKEY = os.environ.get("text-api-token")
 ENDPOINT_URL = os.environ.get("do-spaces-endpoint-url")
 SPACE =  os.environ.get("do-spaces-space")
 
+
+SERVERSTARTTIME = time.time()
+searchCounter = 0
+
 def requestUSGSData():
         headers = {'Accept': 'application/json'}
         try: 
@@ -187,18 +191,22 @@ def rankingRefresh():
         for i in range(len(records)):
             if currentTop == None:
                 currentTop = records[i]
+                currentTop['serverUptime'] = SERVERSTARTTIME - time.time()
             else:
                 if currentTop['mag'] <= records[i]['mag']:
                     currentTop = records[i]
+                    currentTop['serverUptime'] = SERVERSTARTTIME - time.time()
         return currentTop
     # otherwise go through records and determine if new top
     for i in range(len(records)):
         if currentTop == None:
             currentTop = records[i]
+            currentTop['serverUptime'] = SERVERSTARTTIME - time.time()
         else:
             if currentTop['mag'] <= records[i]['mag']:
                 DAILYRUNNING.append(currentTop)
                 currentTop = records[i]
+                currentTop['serverUptime'] = SERVERSTARTTIME - time.time()
     # after getting top feature get map based of only this single feature
     m = GetGoogleMap()
     m = m.featureOnlyMapFromGoogle(currentTop)
@@ -246,12 +254,17 @@ def runRanking():
         time.sleep(RANKINGINTERVAL)
         
 def getNearestFeatureToAddress(address):
+    # Save Searched address to log
+    global searchCounter
+    str(time.ctime(int(time.time())))
+    addressSave = str(searchCounter) + " Searched: " + str(address) + " @ " + str(time.ctime(int(time.time())))
+    save_printToLog(addressSave, "searchLogs.txt")
+    
+    searchCounter += 1
     #convert address received to lat long
     x = GeoCoding()
     latlong = x.addressToLatLong(address)
-    print(latlong)
-    # lat = 37.072847
-    # long = -113.589580    
+    # print(latlong)
     lat = latlong[0]
     long = latlong[1]
     totalDepth = 36         #amount of chunks to looks through
@@ -348,6 +361,15 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(json.dumps(records), "utf-8"))
 
+    def handleGetServerUptime(self):
+        currentUptime = {}
+        currentUptime['serverUptime'] = round(time.time() - SERVERSTARTTIME, 2)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(bytes(json.dumps(currentUptime), "utf-8"))
+
+
     def handleGetDailyRanking(self):
         record = openOneJSONObjectFromFile("DAILYTOP.txt")
 
@@ -423,8 +445,13 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 self.handleGetDailyRanking()
             else:
                 self.handelNotFound("Not a Valid Path")
-
-
+        elif collection_name == 'uptimes':
+            if address == None or address =="":
+                self.handelNotFound("Cant be empty!")
+            elif address == 'server':
+                self.handleGetServerUptime()
+            else:
+                self.handelNotFound("Not a Valid Path")
         # elif collection_name == 'users':
         #     if user_email:
         #         self.handleGetUser(user_email)

@@ -45,3 +45,7 @@ body {
 .data-header {
     font-size: larger;
 }
+#footer {
+    text-align: center;
+    color: lime;
+}

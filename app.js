@@ -11,7 +11,7 @@ function msToTime(s) {
 function mainAddressSearch() {
     var addressSearchInput = document.querySelector("#search-input");
     var address = encodeURIComponent(addressSearchInput.value);
-    fetch(`http://jpl.hopto.me:53011/locations/${address}`, {
+    fetch(`http://localhost:8080/locations/${address}`, {
         method: "GET",
         credentials: "include",
         headers: {
@@ -83,4 +83,27 @@ function loadLeadingFeatureStats() {
         }
     })
 }
+function loadServerUptime() {
+    fetch(`http://localhost:8080/uptimes/server`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; utf-8"
+        }
+    }).then(function (response) {
+        if (response.status == 200) {
+            response.json().then(function (data) {
+                var serverUptime = document.querySelector("#server-uptime");
+                // console.log(serverUptime);
+                console.log("Server Uptime: ", data);
+                serverUptime.innerHTML = data['serverUptime'];
+        })
+    } else {
+        var serverUptime = document.querySelector("#server-uptime");
+        serverUptime.innerHTML = "Server Not Awake!";
+        console.log("Error Loading Server Uptime!");
+    }
+    })
+}
+loadServerUptime();
 loadLeadingFeatureStats();
