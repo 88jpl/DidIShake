@@ -84,7 +84,7 @@ function loadLeadingFeatureStats() {
     })
 }
 function loadServerUptime() {
-    fetch(`http://localhost:8080/uptimes/server`, {
+    fetch(`http://jpl.hopto.me:53011/uptimes/server`, {
         method: "GET",
         credentials: "include",
         headers: {
