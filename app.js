@@ -11,7 +11,7 @@ function msToTime(s) {
 function mainAddressSearch() {
     var addressSearchInput = document.querySelector("#search-input");
     var address = encodeURIComponent(addressSearchInput.value);
-    fetch(`http://localhost:8080/locations/${address}`, {
+    fetch(`http://jpl.hopto.me:53011/locations/${address}`, {
         method: "GET",
         credentials: "include",
         headers: {
