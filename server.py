@@ -18,9 +18,9 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
 SEND_SMS  = True
-INTERVAL = 120
+INTERVAL = 60
 CUTOFF = 7.0
-RANKINGINTERVAL = 7200
+RANKINGINTERVAL = 3600
 DAILYTOP = None
 DAILYRUNNING = []
 MONTLYRUNNING = []
