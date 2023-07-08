@@ -23,14 +23,17 @@ class GetNearbyCity:
           self.url = None
 
     def getNeighborCity(self, feature):
-         lat = feature['lat']
-         long = feature['long']
-        #  print("near city: " + str(lat) + " , " + str(long))
-         r = requests.get(GEOURL, params=f'key={GEOAPIKEY}&lat={lat}&lng={long}')
-         if r.status_code == 404:
-              r = {'latitude': lat - 1, 'longitude': long + 1}
-              return r
-         return r.json()
+        lat = feature['lat']
+        long = feature['long']
+    #  print("near city: " + str(lat) + " , " + str(long))
+        try:
+            r = requests.get(GEOURL, params=f'key={GEOAPIKEY}&lat={lat}&lng={long}')
+        except:
+            r = {'latitude': lat - 1, 'longitude': long + 1}
+        if r.status_code == 404:
+            r = {'latitude': lat - 1, 'longitude': long + 1}
+            return r
+        return r.json()
          
 class GetGoogleMap:
 

@@ -38,6 +38,7 @@ def requestUSGSData():
         headers = {'Accept': 'application/json'}
         try: 
             r = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson')
+            # r = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson')
             # r = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson')
         except requests.exceptions.ConnectionError:
             r.status_code = "Connection Refused"

@@ -33,6 +33,7 @@ function timeToMs(time) {
     // console.log("timeSPlits:" , splitTime);
     
 }
+// Address Search
 function mainAddressSearch() {
     var addressSearchInput = document.querySelector("#search-input");
     var address = encodeURIComponent(addressSearchInput.value);
@@ -63,9 +64,12 @@ function mainAddressSearch() {
                     dataHeader[0].innerHTML = "Searched through ";
                     dataHeader[1].innerHTML = data['checked'];
                     dataHeader[2].innerHTML = " total events.";
+                    // Show Signup popup
                 }
             })
         } else {
+            // Show Signup popup
+
             console.log("No Data Received");
         }
     })
@@ -96,6 +100,7 @@ addressSearchInput.onkeypress = function (event) {
         mainAddressSearch();
     }
 };
+// Daily top load
 function loadLeadingFeatureStats() {
     fetch(`http://jpl.hopto.me:53011/rankings/daily`, {
         method: "GET",
