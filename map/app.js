@@ -1,8 +1,9 @@
 var features = [];
 var events = L.layerGroup();
+var homeLocationLatLong = null;
 
 var map = L.map('map', {
-    center: [37.075247, -113.585698],
+    center: [0,0],
     zoom: 3,
     layers: events
 });
@@ -11,7 +12,61 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 // Marker for location of search
-var marker = L.marker([37.075247, -113.585698]).addTo(map);
+// var marker = L.marker([37.075247, -113.585698]).addTo(map);
+
+function locationSearch() {
+    var homeLocation = document.querySelector("#home-location");
+    var address = encodeURIComponent(homeLocation.value);
+    fetch(`http://jpl.hopto.me:53011/geos/${address}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; utf-8"
+        }
+    }).then(function (response) {
+        if (response.status == 200) {
+            // console.log(response.json());
+            response.json().then(function (data) {
+                console.log(data);
+                // L.marker(data).addTo(map);
+                const myCustomColour = '#583470'
+
+                const markerHtmlStyles = `
+                background-color: ${myCustomColour};
+                width: 3rem;
+                height: 3rem;
+                display: block;
+                left: -1.5rem;
+                top: -1.5rem;
+                position: relative;
+                border-radius: 3rem 3rem 0;
+                transform: rotate(45deg);
+                border: 1px solid #FFFFFF`
+
+                const myIcon = L.divIcon({
+                className: "my-custom-pin",
+                iconAnchor: [0, 24],
+                labelAnchor: [-6, 0],
+                popupAnchor: [0, -36],
+                html: `<span style="${markerHtmlStyles}" />`
+                })
+                L.marker(data, {icon: myIcon}).addTo(map);
+                map.setView(data, 4);
+                homeLocationLatLong = L.marker(data);
+                console.log(homeLocationLatLong);
+            })
+        }
+    })
+}
+// submit the search address when button is clicked
+var addressSearchButton = document.querySelector("#submit-home");
+addressSearchButton.addEventListener("click", locationSearch);
+var addressSearchInput = document.querySelector("#home-location");
+addressSearchInput.onkeypress = function (event) {
+    if (event.keyCode === 13) {
+        locationSearch();
+    }
+};
 
 function populateMap() {
     // get elements
@@ -47,7 +102,7 @@ function loadRecentFeatures(depth) {
     }).then(function (response) {
         
         if (response.status == 200) {
-            console.log(response.status);
+            // console.log(response.status);
             response.json().then(function (data) {
                 // console.log(data);
                 events.clearLayers();
@@ -55,12 +110,13 @@ function loadRecentFeatures(depth) {
                     // console.log(element["featureID"]);
                     // Convert time from ms to date
                     let date = new Date(element['time']);
-                    if (marker == null) {
-                        // console.log("null!")
-                        var marker = L.marker([0, 0]).addTo(map);
+                    if (homeLocationLatLong == null) {
+                        console.log("null!");
+                        homeLocationLatLong = L.marker([0, 0]).addTo(map);
                     }
                     var featureMarker = L.marker([element["lat"],element["long"]]).addTo(events);
-                    var distance = Math.round(calculateDistance(marker, featureMarker) * 100) / 100
+                    var distance = Math.round(calculateDistance(homeLocationLatLong, featureMarker) * 100) / 100;
+                    console.log(distance);
                     featureMarker.bindPopup(`<b>ID: ${element['featureID']}</b><br>Nearby: ${element['place']}<br>Magnitude: ${element['mag']}<br>Occured @ ${date}<br>Distance: ${distance} miles`);
                     // console.log(element['time']);
                     // console.log(date);

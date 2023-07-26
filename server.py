@@ -325,6 +325,13 @@ def getNearestFeatureToAddress(address):
     response = {'lat': 0, 'long': 0, 'checked': checked, 'uri': "test2.png"}
     return response
 
+def convertGeolocationToLatLong(address):
+    #convert address received to lat long
+    x = GeoCoding()
+    latlong = x.addressToLatLong(address)
+    # print(latlong)
+    return latlong
+
 class MyRequestHandler(BaseHTTPRequestHandler):
 
     def end_headers(self):
@@ -398,6 +405,13 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(json.dumps(feature), "utf-8"))
 
+    def handleGetGeolocation(self, address):
+        feature = convertGeolocationToLatLong(address)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(bytes(json.dumps(feature), "utf-8"))
+
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
@@ -439,6 +453,11 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 self.handelNotFound("Cant be empty!")
             else:
                 self.handleGetNearest(address)
+        elif collection_name == 'geos':
+            if address == None or address == "":
+                self.handelNotFound("Cant be empty!")
+            else:
+                self.handleGetGeolocation(address)
         elif collection_name == 'rankings':
             if address == None or address =="":
                 self.handelNotFound("Cant be empty!")

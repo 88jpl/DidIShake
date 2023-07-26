@@ -25,7 +25,7 @@ function timeToMs(time) {
         var mins = parseInt(splitTime[1]);
         var secs = parseInt(splitTime[2]);
         ms = ((hours * 3600) + (mins * 60) + secs) * 1000;
-        console.log(hours, mins, secs);
+        // console.log(hours, mins, secs);
         return ms
     } else {
         return time
@@ -47,7 +47,7 @@ function mainAddressSearch() {
         if (response.status == 200) {
             // console.log(response.json());
             response.json().then(function (data) {
-                console.log(data);
+                // console.log(data);
                 // Clear Daily Top stats
                 var heroImage = document.querySelector("#results");
                 heroImage.style.backgroundImage=`url(${data['uri']})`
@@ -59,7 +59,7 @@ function mainAddressSearch() {
                 leaderTime.remove();
                 if (data['lat'] == 0 && data['long'] == 0) {  
                     var dataHeader = document.getElementsByClassName("data-header");
-                    console.log(dataHeader);
+                    // console.log(dataHeader);
                     dataHeader[0].innerHTML = dataHeader[1].innerHTML = dataHeader[2].innerHTML = dataHeader[3].innerHTML = ""; 
                     dataHeader[0].innerHTML = "Searched through ";
                     dataHeader[1].innerHTML = data['checked'];
@@ -86,7 +86,7 @@ function dailyTopTimer() {
 function serverCounter() {
     var serverUptime = document.querySelector("#server-uptime");
     UPTIME['serverUptime'] =  UPTIME['serverUptime'] + 1;
-    console.log(msToTime(UPTIME['serverUptime'] * 1000));
+    // console.log(msToTime(UPTIME['serverUptime'] * 1000));
     serverUptime.innerHTML = msToTime(UPTIME['serverUptime'] * 1000);
 }
 
@@ -110,9 +110,9 @@ function loadLeadingFeatureStats() {
         }
     }).then(function (response) {
         if (response.status == 200) {
-            console.log(response.status);
+            // console.log(response.status);
             response.json().then(function (data) {
-                console.log(data);
+                // console.log(data);
                 DAILYLEADER = data;
                 var nearbyCity = document.querySelector("#stat-nearby-city-data");
                 var magnitude = document.querySelector("#stat-magnitude-data");
@@ -122,8 +122,8 @@ function loadLeadingFeatureStats() {
                 nearbyCity.innerHTML = data['place'];
                 magnitude.innerHTML = data['mag'];
                 timeOccured.innerHTML = new Date(data['time']);
-                console.log("Time:", Math.floor((new Date()).getTime())
-                    , "Event Time:", data['time'], "=", Math.floor((new Date()).getTime())-data['time']);
+                // console.log("Time:", Math.floor((new Date()).getTime())
+                //     , "Event Time:", data['time'], "=", Math.floor((new Date()).getTime())-data['time']);
         
                 // timeAsLeader = Date.now() - data['time'];
                 // leaderTime.innerHTML = msToTime(timeAsLeader);
@@ -146,7 +146,7 @@ function loadServerUptime() {
                 var serverUptime = document.querySelector("#server-uptime");
                 // console.log(serverUptime);
                 UPTIME = data
-                console.log("Server Uptime: ", data);
+                // console.log("Server Uptime: ", data);
                 serverUptime.innerHTML = msToTime(data['serverUptime'] * 1000);
         })
     } else {
