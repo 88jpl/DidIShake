@@ -1,12 +1,41 @@
 var features = [];
+var events = L.layerGroup();
 
-var map = L.map('map').setView([37.075247, -113.585698], 5);
+var map = L.map('map', {
+    center: [37.075247, -113.585698],
+    zoom: 3,
+    layers: events
+});
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 // Marker for location of search
 var marker = L.marker([37.075247, -113.585698]).addTo(map);
+
+function populateMap() {
+    // get elements
+    var days = document.querySelector("#depth-days");
+    var hours = document.querySelector("#depth-hours");
+    var mins = document.querySelector("#depth-minutes");
+
+    // console.log("days:" + days.value);
+    // convert to seconds
+    var daySecs = 86400 * days.value;
+    var hourSecs = 3600 * hours.value;
+    var minSecs = 60 * mins.value;
+    var depthSecs = daySecs + hourSecs + minSecs;
+    // return depthSecs;
+    loadRecentFeatures(depthSecs)
+}
+
+// Submit Interactive Map depth search
+var depthSubmitButton = document.querySelector("#submit-depth");
+
+depthSubmitButton.onclick = function () {
+    // layerControl.removeLayer("Events");
+    populateMap();
+}
 
 function loadRecentFeatures(depth) {
     fetch(`http://jpl.hopto.me:53011/features/${depth}`, {
@@ -16,22 +45,41 @@ function loadRecentFeatures(depth) {
             "Content-Type": "application/x-www-form-urlencoded; utf-8"
         }
     }).then(function (response) {
+        
         if (response.status == 200) {
             console.log(response.status);
             response.json().then(function (data) {
                 // console.log(data);
+                events.clearLayers();
                 data.forEach(element => {
-                    console.log(element["featureID"]);
+                    // console.log(element["featureID"]);
+                    // Convert time from ms to date
                     let date = new Date(element['time']);
+                    if (marker == null) {
+                        // console.log("null!")
+                        var marker = L.marker([0, 0]).addTo(map);
+                    }
+                    var featureMarker = L.marker([element["lat"],element["long"]]).addTo(events);
+                    var distance = Math.round(calculateDistance(marker, featureMarker) * 100) / 100
+                    featureMarker.bindPopup(`<b>ID: ${element['featureID']}</b><br>Nearby: ${element['place']}<br>Magnitude: ${element['mag']}<br>Occured @ ${date}<br>Distance: ${distance} miles`);
+                    // console.log(element['time']);
+                    // console.log(date);
 
-                    var featureMarker = L.marker([element["lat"],element["long"]]).addTo(map);
-                    featureMarker.bindPopup(`<b>ID: ${element['featureID']}</b><br>Nearby: ${element['place']}<br>Magnitude: ${element['mag']}<br>Occured @ ${date}<br>Distance: ${Math.round(calculateDistance(marker, featureMarker) * 100) / 100} miles`);
-                    console.log(element['time']);
-                    console.log(date);
                 })
+                console.log(events);
+                var overlays = {
+                    'Events': events
+                };
+                var layerControl = L.control.layers(overlays);
+                // layerControl.addOverlay(overlays);
             })
         }
+        
     })
+}
+function addFeaturesOntoMap () {
+
+    
 }
 function calculateDistance(homeObject, featureObject) {
     // Get Home lat/long

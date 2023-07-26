@@ -15,8 +15,21 @@
      crossorigin=""></script>
 </head>
 <body>
-    
-     <div id="map"></div>
-     <script src="app.js"></script>
+    <div id="search-area">
+        <h3>Add Pin at your location</h3>
+        <input id="home-location" placeholder="Enter your location">
+        <button id="submit-home">Add Home Pin</button>
+        <br>
+        <h3>How far back to search?</h3>
+        <input id="depth-days" placeholder="Days">
+        <input id="depth-hours" placeholder="Hours">
+        <input id="depth-minutes" placeholder="Minutes">
+        <button id="submit-depth">Search</button>
+
+
+
+    </div>
+    <div id="map"></div>
+    <script src="app.js"></script>
 </body>
 </html>
