@@ -35,6 +35,12 @@ Attributes:
 * lat (float)
 * depth (float)
 
+**User**
+
+**Notification**
+
+**Session**
+
 ## Schema
 
 ```sql
@@ -71,10 +77,38 @@ long REAL,
 depth REAL);
 ```
 
+```sql
+CREATE TABLE users (
+id INTEGER PRIMARY KEY,
+email TEXT,
+password TEXT,
+f_name TEXT,
+l_name TEXT,
+mobile TEXT,
+sign_up TEXT,
+notifications_setting TEXT,
+notifications_IDs TEXT
+)
+```
+
+```sql
+CREATE TABLE notifications (
+id INTEGER PRIMARY KEY,
+lat REAL,
+long REAL,
+user_primaryID INTEGER
+)
+```
+
 ## REST Endpoints
 
-Name					                | Method| Path
-----------------------------------------|-------|---------------
-Retrieve feature collection		        | GET	| /features
-Retrieve feature member                 | GET   | /features/*\<id\>*
-Retrieve feature current thru seconds   | GET   | /features/*\<seconds\>*
+Name					                            | Method| Path
+----------------------------------------------------|-------|---------------
+Retrieve feature collection		                    | GET	| /features
+Retrieve feature member                             | GET   | /features/*\<id\>*
+Retrieve features current thru seconds              | GET   | /features/*\<seconds\>*
+Retrieve features seconds back thru seconds back    | GET   | /features/*\<seconds\>*,*\<seconds\>*
+Retrieve nearest feature to address                 | GET   | /locations/*\<address\>* (urlencoded)
+Convert address to lat and long                     | GET   | /geos/*\<address\>* (urlencoded)     
+Retrieve Daily top feature                          | GET   | /rankings/daily
+Retrieve server uptime in seconds                   | GET   | /uptimes/server

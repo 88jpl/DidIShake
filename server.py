@@ -46,7 +46,6 @@ def requestUSGSData():
             r = ConnectionErrorObject()
             r.status_code = "Connection Refused"
         return r 
-        
 
 # Move this to its own class
 def sendSMSNotification(message):
