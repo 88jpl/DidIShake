@@ -53,7 +53,7 @@ function locationSearch() {
                 L.marker(data, {icon: myIcon}).addTo(map);
                 map.setView(data, 4);
                 homeLocationLatLong = L.marker(data);
-                console.log(homeLocationLatLong);
+                // console.log(homeLocationLatLong);
             })
         }
     })
@@ -111,12 +111,12 @@ function loadRecentFeatures(depth) {
                     // Convert time from ms to date
                     let date = new Date(element['time']);
                     if (homeLocationLatLong == null) {
-                        console.log("null!");
+                        // console.log("null!");
                         homeLocationLatLong = L.marker([0, 0]).addTo(map);
                     }
                     var featureMarker = L.marker([element["lat"],element["long"]]).addTo(events);
                     var distance = Math.round(calculateDistance(homeLocationLatLong, featureMarker) * 100) / 100;
-                    console.log(distance);
+                    // console.log(distance);
                     featureMarker.bindPopup(`<b>ID: ${element['featureID']}</b><br>Nearby: ${element['place']}<br>Magnitude: ${element['mag']}<br>Occured @ ${date}<br>Distance: ${distance} miles`);
                     // console.log(element['time']);
                     // console.log(date);

@@ -41,8 +41,12 @@ def requestUSGSData():
             r = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson')
             # r = requests.get('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson')
         except requests.exceptions.ConnectionError:
+            class ConnectionErrorObject(object):
+                pass
+            r = ConnectionErrorObject()
             r.status_code = "Connection Refused"
-        return r
+        return r 
+        
 
 # Move this to its own class
 def sendSMSNotification(message):
