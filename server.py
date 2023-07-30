@@ -3,6 +3,8 @@ import requests
 import shutil
 import threading
 import time
+import datetime
+import urllib.parse
 from datetime import date
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
@@ -21,6 +23,7 @@ SEND_SMS  = True
 INTERVAL = 60
 CUTOFF = 7.0
 RANKINGINTERVAL = 3600
+CANADADEPTH = 30
 DAILYTOP = None
 DAILYRUNNING = []
 MONTLYRUNNING = []
@@ -46,6 +49,39 @@ def requestUSGSData():
             r = ConnectionErrorObject()
             r.status_code = "Connection Refused"
         return r 
+
+def requestCanadaData():
+        headers = {'Accept': 'application/json'}
+        # format endtime
+        currentTime = datetime.datetime.now(datetime.timezone.utc)
+        theTime = str(currentTime).split('.')
+        pastTime = str(currentTime - datetime.timedelta(days = CANADADEPTH)).split('.')
+        endtime = urllib.parse.quote(theTime[0].replace(' ', 'T'))
+        # format startime
+        startTime = urllib.parse.quote(pastTime[0].replace(' ', 'T'))
+        try:
+            searchURL = 'https://earthquakescanada.nrcan.gc.ca/fdsnws/event/1/query?endtime={}&eventtype=L&format=text&latitude=63.13&longitude=-90.34&maxdepth=1000&maxlatitude=90&maxlongitude=180&maxmagnitude=10&maxradius=45.04504504504504&mindepth=-5&minlatitude=-90&minlongitude=-180&minmagnitude=-5&minradius=0&nodata=404&onlyfelt=0&starttime={}'.format(endtime, startTime)
+            r = requests.get(searchURL)
+        except requests.exceptions.ConnectionError:
+            class ConnectionErrorObject(object):
+                pass
+            r = ConnectionErrorObject()
+            r.status_code = "Connection Refused"
+        return r
+
+def formatCanadaFeatures(response):
+    data = response.text
+    listOfFeatures = data.split('\n')
+    eventsCollection = []
+    for i in range(1, len(listOfFeatures)):
+        if listOfFeatures[i] == '':
+            pass
+        else:
+            splitFeature = listOfFeatures[i].split('|')
+            eventsCollection.append(splitFeature)
+            # print(splitFeature)
+    # print(eventsCollection)
+    return eventsCollection
 
 # Move this to its own class
 def sendSMSNotification(message):
@@ -120,6 +156,75 @@ def saveFeatureFromCollectionToDB(collection):
         else:
             print("Feature: " + collection['features'][i]['id'] + " added already!" )
 
+def saveCanadaCollectionToDB(eventsCollection):
+    # CREATE TABLE features (id INTEGER PRIMARY KEY, featureID TEXT, mag REAL, place TEXT, time INTEGER, updated TEXT, tz INTEGER, url TEXT, detail TEXT, felt INTEGER, cdi REAL, mmi REAL, alert TEXT, status TEXT, tsunami INTEGER, sig INTEGER, net TEXT, code TEXT, ids TEXT, sources TEXT, types TEXT, nst INTEGER, dmin REAL, rms REAL, gap REAL, magType TEXT, type TEXT, lat REAL, long REAL, depth REAL);
+    DB = FeaturesDB()
+    for event in eventsCollection:
+        feature = DB.getFeature(event[0])
+        if feature == None:
+            feature = event[0]
+            # Properties
+            mag = validateRealForDB(float(event[6]))
+            place = validateTextForDB(event[7])
+            # time needs to be converted from ISO to epoch
+            # print("unformatted time: " + event[1])
+            utc_dt = datetime.datetime.strptime(event[1], '%Y-%m-%dT%H:%M:%S.%fZ')
+            timeStamp = (utc_dt - datetime.datetime(1970, 1, 1)).total_seconds()
+            # print("timeConverted: " + str(int(timeStamp)*1000))
+            eqtime = validateIntForDB(int(timeStamp)*1000)
+            updated = validateIntForDB(int(timeStamp)*1000)
+            tz = validateIntForDB(None)
+            url = validateTextForDB(None)
+            detail = validateTextForDB(None)
+            felt = validateIntForDB(None)
+            cdi = validateRealForDB(None)
+            mmi = validateRealForDB(None)
+            alert = validateTextForDB(None)
+            status = validateTextForDB(None)
+            tsunami = validateIntForDB(None)
+            sig = validateIntForDB(None)
+            net = validateTextForDB(None)
+            code = validateTextForDB(None)
+            ids = validateTextForDB(None)
+            sources = validateTextForDB(None)
+            types = validateTextForDB(None)
+            nst = validateIntForDB(None)
+            dmin = validateRealForDB(None)
+            rms = validateRealForDB(None)
+            gap = validateRealForDB(None)
+            magType = validateTextForDB(event[5])
+            type1 = validateTextForDB("earthquake")
+            # Geometry
+            long = validateRealForDB(float(event[3]))
+            lat = validateRealForDB(float(event[2]))
+            depth = validateRealForDB(float(event[4]))
+
+            # log message
+            seconds = time.time()
+            serverTime = time.ctime(seconds)
+            save_printToLog("Created new feature: " + feature + " located @ " + place + ". Server time: " + str(serverTime), "USGS_DB.txt")
+            print("Created new feature: " + feature + " located @ " + place + ".")
+            # Send SMS to user
+            if SEND_SMS:
+                # Only send if above magnitude cutoff
+                if mag >= CUTOFF:
+                    # Distance from School
+                    distanceFrom = distance(37.101216, -113.568513, lat, long)
+                    # old message
+                    #sendSMSNotification("A magnitude " + str(mag) + " earthquake happened @ " + place + ".")
+                    # Actually send the SMS
+                    sendSMSNotification("A magnitude " + str(mag) + " earthquake occured " + str(distanceFrom)  + " miles away.")
+                    # print statements for log and one for terminal
+                    save_printToLog("A magnitude " + str(mag) + " earthquake occured " + str(distanceFrom)  + " miles away.", "USGS_DB.txt")
+                    save_printToLog("Texted feature: " + feature + " it was " + str(mag) +  ".", "USGS_DB.txt")
+                    print("Texted feature: " + feature + " it was " + str(mag) +  ".")
+                save_printToLog("Didn't text feature: " + feature + " it was " + str(mag) +  ". To Weak!!!", "USGS_DB.txt")
+                print("Didn't text feature: " + feature + " it was " + str(mag) +  ". To Weak!!!")
+            DB.createNewFeature(feature, mag, place, eqtime, updated, tz, url, detail, felt, cdi, mmi, alert, status, tsunami, sig, net, code, ids, sources, types, nst, dmin, rms, gap, magType, type1, lat, long, depth)
+        else:
+            print("Feature: " + event[0] + " added already!" )
+
+
 def validateRealForDB(var):
     if var is None:
         var = 123.456
@@ -147,6 +252,23 @@ def getUSGSDataAlways():
         response = requestUSGSData()
         if response.status_code == 200:   
             saveFeatureFromCollectionToDB(response.json())
+            time.sleep(INTERVAL)
+            seconds = time.time()
+            serverTime = time.ctime(seconds)
+            save_printToLog("Retrival: " + str(counter) + " @ " + str(serverTime), "USGS_DB.txt")
+            print(counter)
+            counter += 1
+        else:
+            save_printToLog("ERROR: status code - " + str(response.status_code) + " @ " + str(serverTime), "USGS_DB.txt")
+
+def getCanadaDataAlways():
+    counter = 0
+    while(True):
+        response = requestCanadaData()
+        # print(response.status_code)
+        if response.status_code == 200:   
+            collection = formatCanadaFeatures(response)
+            saveCanadaCollectionToDB(collection)
             time.sleep(INTERVAL)
             seconds = time.time()
             serverTime = time.ctime(seconds)
@@ -494,6 +616,8 @@ def run():
     thread_1.start()
     thread_2 = threading.Thread(target=runRanking, daemon=True)
     thread_2.start()
+    thread_3 = threading.Thread(target=getCanadaDataAlways, daemon=True)
+    thread_3.start()
     server.serve_forever()
 
 if __name__ == '__main__':
