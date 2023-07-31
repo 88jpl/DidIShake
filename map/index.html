@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InterActive Map</title>
+    <title>InterActive Map DidIShake.com</title>
     <link rel="stylesheet" href="style.css">
     <!-- OpenStreetMaps imports -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -15,21 +15,24 @@
      crossorigin=""></script>
 </head>
 <body>
-    <div id="search-area">
-        <h3>Add Pin at your location</h3>
-        <input id="home-location" placeholder="Enter your location">
-        <button id="submit-home">Add Home Pin</button>
-        <br>
-        <h3>How far back to search?</h3>
-        <input id="depth-days" placeholder="Days">
-        <input id="depth-hours" placeholder="Hours">
-        <input id="depth-minutes" placeholder="Minutes">
-        <button id="submit-depth">Search</button>
-
-
-
+    <div id="wrapper">
+        <div id="search-area">
+            <div id="location">
+                <h3>Add Pin at your location</h3>
+                <input id="home-location" placeholder="Enter your location" maxlength="50" size="18">
+                <button id="submit-home">Add Home Pin</button>
+            </div>
+            <div id="time-back">
+                <h3>How far back to search?</h3>
+                <input id="depth-days" placeholder="Days" maxlength="2" size="2">
+                <input id="depth-hours" placeholder="Hours" maxlength="2" size="2">
+                <input id="depth-minutes" placeholder="Minutes" maxlength="3" size="5">
+                <button id="submit-depth">Search</button>
+            </div>
+            <div id="search-data"></div>
+        </div>
+        <div id="map"></div>
     </div>
-    <div id="map"></div>
     <script src="app.js"></script>
 </body>
 </html>

@@ -27,7 +27,7 @@ function locationSearch() {
         if (response.status == 200) {
             // console.log(response.json());
             response.json().then(function (data) {
-                console.log(data);
+                // console.log(data);
                 // L.marker(data).addTo(map);
                 const myCustomColour = '#583470'
 
@@ -54,6 +54,8 @@ function locationSearch() {
                 map.setView(data, 4);
                 homeLocationLatLong = L.marker(data);
                 // console.log(homeLocationLatLong);
+                var addressSearchInput = document.querySelector("#home-location");
+                addressSearchInput.value = "";
             })
         }
     })

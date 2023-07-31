@@ -1,1 +1,66 @@
-#map { height: 800px; }
+body {
+    background-color: #e3ffbd;
+}
+#map { 
+    height: 600px; 
+    border-radius: 10px;
+}
+#search-area {
+    grid-area: search;
+    padding-bottom: 25px;
+}
+#map{
+    grid-area: map;
+    align-items: center;
+}
+#wrapper {
+    display: grid;
+    grid-template-columns: 5% 90% 5%;
+    grid-template-rows: auto;
+    grid-template-areas: 
+        ". search ."
+        ". map .";
+}
+#search-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+
+}
+#time-back {
+    text-align: center;
+    /* width: 275px; */
+}
+#location {
+    text-align: center;
+}
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+    #map {
+        height: 425px;
+    }
+    #search-area {
+        display: inline-block;
+    
+    }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+
+} 
