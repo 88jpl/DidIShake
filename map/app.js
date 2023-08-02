@@ -1,5 +1,6 @@
 var features = [];
 var events = L.layerGroup();
+var homeMarker;
 var homeLocationLatLong = null;
 
 var map = L.map('map', {
@@ -26,7 +27,14 @@ function locationSearch() {
     }).then(function (response) {
         if (response.status == 200) {
             // console.log(response.json());
+            console.log(homeMarker);
             response.json().then(function (data) {
+                if (homeMarker != null) {
+                    if (map.hasLayer(homeMarker)) {
+                        map.removeLayer(homeMarker);
+                    }
+                }
+                
                 // console.log(data);
                 // L.marker(data).addTo(map);
                 const myCustomColour = '#583470'
@@ -50,7 +58,7 @@ function locationSearch() {
                 popupAnchor: [0, -36],
                 html: `<span style="${markerHtmlStyles}" />`
                 })
-                L.marker(data, {icon: myIcon}).addTo(map);
+                homeMarker = L.marker(data, {icon: myIcon}).addTo(map);
                 map.setView(data, 4);
                 homeLocationLatLong = L.marker(data);
                 // console.log(homeLocationLatLong);
