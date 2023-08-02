@@ -3,7 +3,7 @@ var events = L.layerGroup();
 var homeLocationLatLong = null;
 
 var map = L.map('map', {
-    center: [0,0],
+    center: [37.0902, -95.7129],
     zoom: 3,
     layers: events
 });
@@ -114,7 +114,7 @@ function loadRecentFeatures(depth) {
                     let date = new Date(element['time']);
                     if (homeLocationLatLong == null) {
                         // console.log("null!");
-                        homeLocationLatLong = L.marker([0, 0]).addTo(map);
+                        homeLocationLatLong = L.marker([37.0902, -95.7129]).addTo(map);
                     }
                     var featureMarker = L.marker([element["lat"],element["long"]]).addTo(events);
                     var distance = Math.round(calculateDistance(homeLocationLatLong, featureMarker) * 100) / 100;

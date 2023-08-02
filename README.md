@@ -112,3 +112,22 @@ Retrieve nearest feature to address                 | GET   | /locations/*\<addr
 Convert address to lat and long                     | GET   | /geos/*\<address\>* (urlencoded)     
 Retrieve Daily top feature                          | GET   | /rankings/daily
 Retrieve server uptime in seconds                   | GET   | /uptimes/server
+
+## Functions
+
+**getNearestFeatureToAddress**
+
+    Extra Small -   0 <= or <= 2.5 Magnitude
+                    <= 10 Miles
+
+    Small -         2.5 <= or <= 5.4 Magnitude
+                    <= 75 Miles
+
+    Medium -        5.5 <= or <= 6.9 Magnitude
+                    <= 450 Miles
+                    
+    Large -         >= 7.0 Magnitude
+                    <= 750 Miles
+
+
+
