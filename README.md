@@ -129,5 +129,28 @@ Retrieve server uptime in seconds                   | GET   | /uptimes/server
     Large -         >= 7.0 Magnitude
                     <= 750 Miles
 
+## External Resources
+
+**API's**
+
+- USGS (https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php)
+
+- TextBelt *Notifcation service (Not in Production)*
+
+- Google
+
+    - StaticMaps
+    - Geocoding
+
+**Other**
+
+- Digital Ocean 
+
+    -Spaces/Bucket (Image storage)
+
+
+- Canada Earthquakes (https://earthquakescanada.nrcan.gc.ca/stndon/NEDB-BNDS/bulletin-en.php)
+
+- Leaflet/OpenMaps (https://leafletjs.com/index.html)
 
 
