@@ -101,6 +101,24 @@ depthSubmitButton.onclick = function () {
     // layerControl.removeLayer("Events");
     populateMap();
 }
+var days = document.querySelector("#depth-days");
+var hours = document.querySelector("#depth-hours");
+var mins = document.querySelector("#depth-minutes");
+days.onkeypress = function (event) {
+    if (event.keyCode === 13) {
+        populateMap();
+    }
+};
+hours.onkeypress = function (event) {
+    if (event.keyCode === 13) {
+        populateMap();
+    }
+};
+mins.onkeypress = function (event) {
+    if (event.keyCode === 13) {
+        populateMap();
+    }
+};
 
 function loadRecentFeatures(depth) {
     fetch(`http://jpl.hopto.me:53011/features/${depth}`, {
@@ -143,10 +161,7 @@ function loadRecentFeatures(depth) {
         
     })
 }
-function addFeaturesOntoMap () {
 
-    
-}
 function calculateDistance(homeObject, featureObject) {
     // Get Home lat/long
     var homeLat = homeObject._latlng["lat"];
